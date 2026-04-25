@@ -10,8 +10,8 @@ bool strongTurn = false;//スタート時に回転する
 
 String M1, M2, M3, M4;
 float Moterhelp[4] = {1, 1, 1, 1};
-int powermx = 220;
-int putPower = 220;
+int powermx = 170;
+int putPower = 170;
 
 int pidCalculate(float p){
     Input = p;
@@ -41,7 +41,7 @@ void MoterSerial(int m1, int m2, int m3, int m4){
     } else {
         M4="f"+String(mchange[int(abs(m4)/16)])+String(mchange[abs(m4)%16]);
     }
-    if (digitalRead(22) == HIGH && !checkComm()){
+    if (digitalRead(22) == HIGH){
         Serial2.print(M1 + M2 + M3 + M4 + "s");
     } else {
         Serial2.print("00000000s");

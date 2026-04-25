@@ -20,6 +20,5 @@ extern bool strongTurn;
 int pidCalculate(float p);
 void MoterSerial(int m1, int m2, int m3, int m4);
 void MoterSerialPR(int p, int r);
-bool checkComm();
 
 #endif

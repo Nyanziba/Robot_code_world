@@ -5,8 +5,8 @@
 
 int preRads;
 int lineFound[2] = {0, 0};
-int outTime = 300;
-int stopTime = 300;
+int outTime = 200;
+int stopTime = 100;
 unsigned long startTime;
 const unsigned long settingTime = 7000;
 
@@ -83,10 +83,8 @@ void lineSet(int i) {
 }
 
 bool lineCheck(int *sensorVal) {
-    preRads = goRad; // 必要に応じて修正
+    preRads = 0; // 必要に応じて修正
     int found = 0;
-    float linex[4] = {cos(1.18), cos(2.75), cos(-1.96), cos(-0.39)};
-    float liney[4] = {sin(1.18), sin(2.75), sin(-1.96), sin(-0.39)};
     if (sensorVal[0] > lineOutVal[0]) found++;
     if (sensorVal[1] > lineOutVal[1]) found++;
     if (sensorVal[2] > lineOutVal[2]) found++;
@@ -94,33 +92,9 @@ bool lineCheck(int *sensorVal) {
     if (found != 0){
       tone(PINNO,330,BEAT) ; // ミ
       MoterSerialPR(powermx,preRads+180);
-      if(drCatch){
-        blshoot(1);
-        drCatch = false;
-      }
       delay(stopTime);
-      
-      if(ultrasonicVal[1] < 16  && ultrasonicVal[2] > 110){
-        MoterSerialPR(powermx,90);
-      } else if(ultrasonicVal[2] < 16  && ultrasonicVal[1] > 110){
-        MoterSerialPR(powermx,-90);
-      } else {
-        float kaihix = 0.0;
-        float kaihiy = 0.0;
-        for(int t=0; t<4; t++){
-          if(sensorVal[t] > lineOutVal[t]){
-            kaihix += linex[t];
-            kaihiy += liney[t];
-          }
-        }
-        float kaihi_r = atan2(kaihiy,kaihix)*(180/PI);
-        MoterSerialPR(powermx,kaihi_muki_k);
-      }
-      //Serial.println(kaihi_r);
+      MoterSerialPR(powermx,kaihi_muki_k);
       delay(outTime);
-      if(abs(ultrasonicVal[1]-ultrasonicVal[2]) < 20 && !searchflag){
-        backgoalfrontflag = true;
-      }
       return false;
     } else {
       return true;
@@ -163,17 +137,7 @@ void kaihi_check(){
   kaihi_y += surrounding[12] * cos(1.96);
   kaihi_y += surrounding[13] * cos(2.36);
   kaihi_y += surrounding[14] * cos(2.75);
-  kaihi_y += surrounding[15] * cos(3.14);
-
-  int max_surroundhing = 0;
-  int max_index = 0;
-  for(int i = 0;i < 16;i++){
-    if(surrounding[i] > max_surroundhing){
-      max_index = i;
-      max_surroundhing = surrounding[i];
-    }
-  }
-  float surrouning_rad[15] = {-157.5,-135,-112.5,-90,-67.5,-45,-22.5,0,22.5,45,67.5,90,112.5,135,157.5};
+  kaihi_y += surrounding[15] * sin(3.14);
 
   kaihi_speed = sqrt(pow(kaihi_x, 2) + pow(kaihi_y, 2));
 
@@ -187,6 +151,5 @@ void kaihi_check(){
     } else if(kaihi_muki_k > 180){
       kaihi_muki_k -= 360;
     }
-    
   }
 }

@@ -25,20 +25,12 @@ extern float kaihi_speed_k;
 extern float kaihi_muki_k;
 extern int surrounding[16];
 extern String posi;
-extern bool drCatch;
-extern int ultrasonicVal[3];
-extern int goRad;
-extern float jairo;
-
-extern bool searchflag;
-extern bool backgoalfrontflag;
 
 void loodLineSet();
 void lineSet(int i);
 bool lineCheck(int *sensorVal);
 void kaihi_check();
 void MoterSerialPR(int p,int r);
-void blshoot(int a);
 //bool k_line();
 
 #endif

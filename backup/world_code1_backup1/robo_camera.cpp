@@ -119,11 +119,32 @@ int* cameraCheck(){
       if(value_check >= 0){
         surrounding[4] = value_check*2;
       }
+    /*
+    } else if (head == 'c') {
+      shootSubSend = false;
+      shootSend = true;
+      tone(PINNO,370,BEAT) ; // ファ#
+      delay(BEAT) ;
+      tone(PINNO,330,BEAT) ; // ミ
+      delay(BEAT) ;
+      tone(PINNO,220,BEAT) ; // ラ
+      delay(BEAT) ;
+      tone(PINNO,293,BEAT) ; // レ
+    } else if (head == 's') {
+      blshoot(0);
+      mySerial1.print("ble");
+      mySerial2.print("ble");
+      Serial1.print("ble");
+      drMode = false;
+      drCatchMode = false;
+      shootSubSend = false;
+      shootSend = false;
+      digitalWrite(19, LOW);
+      */
     }
+    //Serial.println(rads);
   }  
-
   //rightカメラ
-  mySerial1.listen();
   if (mySerial1.available() > 0){
     //radsbrStr = "";
     cameraRBuf = "";
@@ -154,7 +175,6 @@ int* cameraCheck(){
     //if (b1Index != -1 && f1Index != -1) {
       //rWorldSize = cameraRBuf.substring(b1Index + 1, f1Index).toInt();
     //}
-    
     if (f1Index != -1 && g1Index != -1) {
       value_check = cameraRBuf.substring(f1Index + 1, g1Index).toInt();
       if(value_check >= 0){
@@ -189,15 +209,48 @@ int* cameraCheck(){
         surrounding[11] = value_check*2;
       }
     }
-      
+    /*
+    if (cameraRBuf.charAt(cameraRBufLen - 1) == 'd'){
+      cameraRBuf.remove(cameraRBufLen - 1);
+      radsbrStr = cameraRBuf;
+      drCatchMode = true;
+    } else if (cameraRBuf.charAt(cameraRBufLen - 1) == 'r'){
+      cameraRBuf.remove(cameraRBufLen - 1);
+      radsbrStr = cameraRBuf;
+      drCatchMode = false;
+    } else if (cameraRBuf.charAt(cameraRBufLen - 1) == 's'){
+      cameraRBuf.remove(cameraRBufLen - 1);
+      rCameraSize = cameraRBuf.toInt();
+    } else {
+      drCatchMode = false;
+      radsbrStr = cameraRBuf;
+    }
+    if (cameraRBuf == "blb"){
+      radsbrStr = "185";
+      drMode = true;
+      digitalWrite(19, HIGH);
+      mySerial2.print("blb");
+      mySerial1.print("blb");
+      Serial1.print("blb");
+    } else if (cameraRBuf == "ble"){
+      radsbrStr = "185";
+      drMode = false;
+      digitalWrite(19, LOW);
+      mySerial2.print("ble");
+      mySerial1.print("ble");
+      Serial1.print("ble");
+    } else if (cameraRBuf == "bls" && (!shootSubSend || millis() - sendTime >= timeout) && !shootSend){
+      Serial1.print("bls");
+      sendTime = millis();
+      shootSubSend = true;
+      tone(PINNO,293,BEAT) ; // レ
+    }
+    */
   }
-  
   //leftカメラ
-  mySerial2.listen();
   if (mySerial2.available() > 0){
     cameraLBuf = "";
     cameraLBuf = mySerial2.readStringUntil('e');
-    Serial.println(cameraLBuf);
     int r2Index = cameraLBuf.indexOf('r');
     int s2Index = cameraLBuf.indexOf('s');
     int l2Index = cameraLBuf.indexOf('l');
@@ -257,11 +310,40 @@ int* cameraCheck(){
         surrounding[3] = value_check*2;
       }
     }
-      
-    
+    /*
+    int cameraLBufLen = cameraLBuf.length();
+    if (cameraLBuf.charAt(cameraLBufLen - 1) == 'd'){
+      cameraLBuf.remove(cameraLBufLen - 1);
+      radsblStr = cameraLBuf;
+      drCatchMode = true;
+    } else if (cameraLBuf.charAt(cameraLBufLen - 1) == 'r'){
+      cameraLBuf.remove(cameraLBufLen - 1);
+      radsblStr = cameraLBuf;
+      drCatchMode = false;
+    } else if (cameraLBuf.charAt(cameraLBufLen - 1) == 's'){
+      cameraLBuf.remove(cameraLBufLen - 1);
+      lCameraSize = cameraLBuf.toInt();
+    } else {
+      drCatchMode = false;
+      radsblStr = cameraLBuf;
+    }
+    if (radsblStr == "blb"){
+      radsblStr = "185";
+      drMode = true;
+      digitalWrite(19, HIGH);
+      mySerial1.print("blb");
+      mySerial2.print("blb");
+      Serial1.print("blb");
+    } else if (radsblStr == "ble"){
+      radsblStr = "185";
+      drMode = false;
+      digitalWrite(19, LOW);
+      mySerial1.print("ble");
+      mySerial2.print("ble");
+      Serial1.print("ble");
+    }
+    */
   }
-    
-    
   /*
   Serial.print(String(fCameraSize));
   Serial.print(", ");

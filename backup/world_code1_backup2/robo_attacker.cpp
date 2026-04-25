@@ -21,13 +21,7 @@ int a_roboGoRad(int r, int d){
   Serial.print(String(r));
   Serial.print(" d:");
   Serial.println(String(d));
-  */  
-  
-  if(drMode && d != -1){
-    return d_roboGoRad(r, d);
-  }
-  
-
+  */
   if(abs(r) > 181){
       return 185;
   }
@@ -44,9 +38,6 @@ int a_roboGoRad(int r, int d){
         reRad = r * k;
     }
   }
-  if((abs(r) <= 55 && d >=205) & d < 230){
-    reRad = r*1.5;
-  }
   if(abs(r) <= 10){
     reRad = 0;
   }
@@ -58,38 +49,13 @@ int a_roboGoRad(int r, int d){
       reRad = r*2.8;
     }
     */
-    if(!searchflag){
-      if(r < 0){
-        reRad = -135;
-      } else {
-        reRad = 135;
-      }
-    }
-    
-    searchflag = true;
-    
-    backgoalfrontflag = false;
     if(abs(r) > 110){ //遠かったら近くまで行く
       if(d > 230){
         reRad = r;
       }
     }
   } else {
-    searchflag = false;
-    putPower = 100;
-    //超音波使った仮
-    if(ultrasonicVal[1] > ultrasonicVal[2] && abs(ultrasonicVal[1]-ultrasonicVal[2]) > 10){
-      reRad = 135;
-    } else if(ultrasonicVal[1] < ultrasonicVal[2] && abs(ultrasonicVal[1]-ultrasonicVal[2]) > 10){
-      reRad = -135;
-    } else {
-      reRad = 180;
-    }
-    //----------------
-  }
-
-  if(backgoalfrontflag){
-    return 185;
+    reRad = r;
   }
 
   if(reRad < -180){//絶対値が180を超えないように

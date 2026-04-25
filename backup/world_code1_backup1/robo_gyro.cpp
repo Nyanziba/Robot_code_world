@@ -16,22 +16,22 @@ void mpu_setup() {
     mpu.initialize();
     mpu.dmpInitialize();
     mpu.setDMPEnabled(true);
-    //--------------white-----------
+    //--------------daisen-----------
     
     mpu.setXAccelOffset(-2849);
-    mpu.setYAccelOffset(-2344);
-    mpu.setZAccelOffset(1358);
-    mpu.setXGyroOffset(4);
-    mpu.setYGyroOffset(6);
-    mpu.setZGyroOffset(70);
+    mpu.setYAccelOffset(-2310);
+    mpu.setZAccelOffset(1380);
+    mpu.setXGyroOffset(-2);
+    mpu.setYGyroOffset(9);
+    mpu.setZGyroOffset(76);
     
-    //-----------Black------------------------
-    //mpu.setXAccelOffset(-25);
-    //mpu.setYAccelOffset(1126);
-    //mpu.setZAccelOffset(1088);
-    //mpu.setXGyroOffset(33);
-    //mpu.setYGyroOffset(-41);
-    //mpu.setZGyroOffset(93);
+    //-----------pololu------------------------
+    //mpu.setXAccelOffset(-36);
+    //mpu.setYAccelOffset(1132);
+    //mpu.setZAccelOffset(1104);
+    //mpu.setXGyroOffset(28);
+    //mpu.setYGyroOffset(-40);
+    //mpu.setZGyroOffset(89);
     //-----------------------------------------
     //mpu.CalibrateAccel(6);
     //mpu.CalibrateGyro(6);

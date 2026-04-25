@@ -31,7 +31,7 @@ void commandRead(String comtxt){
     }
   } else if(comtxt.substring(0,7) == "WDS/SSA"){
     mySerial.print("Sy/SVMo/");
-    mySerial.print("LMJYBRGDU");
+    mySerial.print("LMJYBRGD");
     mySerial.print("/");
     mySerial.print(String(analogRead(26)));
     mySerial.print(",");
@@ -58,10 +58,6 @@ void commandRead(String comtxt){
     mySerial.print(String(goRad));
     mySerial.print("/");
     mySerial.print(String(ballRD[1]));
-    mySerial.print("/");
-    mySerial.print(String(ultrasonicVal[1]));
-    mySerial.print(",");
-    mySerial.print(String(ultrasonicVal[2]));
     mySerial.println("/");
   } else if(comtxt.substring(0,11) == "WDS/LSetfrr"){
     lineSet(2);
@@ -143,22 +139,11 @@ void commandRead2(String comtxt){
     int idx2 = comtxt.indexOf(',', idx1 + 1);
     int idx3 = comtxt.indexOf(',', idx2 + 1);
     int idx4 = comtxt.indexOf(',', idx3 + 1);
-    int idx5 = comtxt.indexOf(',', idx4 + 1);
-    int idx6 = comtxt.indexOf(',', idx5 + 1);
 
     if (idx1 > 0 && idx2 > idx1 && idx3 > idx2) {
       ultrasonicVal[0] = comtxt.substring(idx1 + 1, idx2).toInt();//前
       ultrasonicVal[1] = comtxt.substring(idx2 + 1, idx3).toInt();//右
       ultrasonicVal[2] = comtxt.substring(idx3 + 1, idx4).toInt();//左
-      commuMode[0] = comtxt.substring(idx4 + 1, idx5).toInt();
-      commuMode[1] = comtxt.substring(idx5 + 1, idx6).toInt();
     }
   }
-}
-
-bool checkComm(){
-  if(commuMode[0] == 0 && commuMode[1] == 0){
-    return true;
-  }
-  return false;
 }
