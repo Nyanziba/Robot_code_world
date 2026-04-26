@@ -37,17 +37,13 @@ int* cameraCheck(){
     }
     head = Serial1.read();
     if (head == 'b') {
-      if(atack_goal_color == "blue"){
-        gbrads = Serial1.read();
-        gbrads = ((gbrads/0.694) - 180);
-      }
+      gbrads = Serial1.read();
+      gbrads = ((gbrads/0.694) - 180);
     }
     head = Serial1.read();
     if (head == 'y') {
-      if(atack_goal_color == "yellow"){
-        gyrads = Serial1.read();
-        gyrads = ((gyrads/0.694) - 180); 
-      }
+      gyrads = Serial1.read();
+      gyrads = ((gyrads/0.694) - 180);
     }
     head = Serial1.read();
     if (head == 'l') {
@@ -60,14 +56,12 @@ int* cameraCheck(){
     head = Serial1.read();
     if (head == 'a') {
       int kickcheck = Serial1.read();
-      if (digitalRead(22) == HIGH){
-        if(kickcheck == 1) {
-          unsigned long now = millis();
-          if(now-lastKickTime > 500){
-            kickMode = true;
-            Serial.println("Kick Mode: ON");
-            lastKickTime = now;
-          }
+      if(kickcheck == 1) {
+        unsigned long now = millis();
+        if(now-lastKickTime > 500){
+          kickMode = true;
+          Serial.println("Kick Mode: ON");
+          lastKickTime = now;
         }
       }
     }
@@ -144,62 +138,69 @@ int* cameraCheck(){
     }
     //Serial.println(rads);
   }
-  //rightカメラ（非ブロッキング読み出し: 'e' を境界としてフレーム化）
-  {
-    unsigned long rStartMs = millis();
-    while (mySerial1.available() > 0 && (millis() - rStartMs) < 3) {
-      char c = (char)mySerial1.read();
-      if (c == 'e') {
-        int r1Index = cameraRBuf.indexOf('r');
-        int s1Index = cameraRBuf.indexOf('s');
-        int l1Index = cameraRBuf.indexOf('l');
-        int w1Index = cameraRBuf.indexOf('w');
-        int f1Index = cameraRBuf.indexOf('f');
-        int g1Index = cameraRBuf.indexOf('g');
-        int h1Index = cameraRBuf.indexOf('h');
-        int i1Index = cameraRBuf.indexOf('i');
-        int j1Index = cameraRBuf.indexOf('j');
-
-        if (r1Index != -1 && s1Index != -1) {
-          radsbr = cameraRBuf.substring(r1Index + 1, s1Index).toInt();
-        }
-        if (s1Index != -1 && l1Index != -1) {
-          rCameraSize = cameraRBuf.substring(s1Index + 1, l1Index).toInt();
-        }
-        if (l1Index != -1 && w1Index != -1) {
-          rdistance = cameraRBuf.substring(l1Index + 1, w1Index).toInt();
-        }
-        if (w1Index != -1 && f1Index != -1) {
-          rWorldSize = cameraRBuf.substring(w1Index + 1, f1Index).toInt();
-        }
-        if (f1Index != -1 && g1Index != -1) {
-          value_check = cameraRBuf.substring(f1Index + 1, g1Index).toInt();
-          if (value_check >= 0) surrounding[15] = value_check * 2;
-        }
-        if (g1Index != -1 && h1Index != -1) {
-          value_check = cameraRBuf.substring(g1Index + 1, h1Index).toInt();
-          if (value_check >= 0) surrounding[14] = value_check * 2;
-        }
-        if (h1Index != -1 && i1Index != -1) {
-          value_check = cameraRBuf.substring(h1Index + 1, i1Index).toInt();
-          if (value_check >= 0) surrounding[13] = value_check * 2;
-        }
-        if (i1Index != -1 && j1Index != -1) {
-          value_check = cameraRBuf.substring(i1Index + 1, j1Index).toInt();
-          if (value_check >= 0) surrounding[12] = value_check * 2;
-        }
-        if (j1Index != -1) {
-          int nextIndex = j1Index + 1;
-          while (nextIndex < (int)cameraRBuf.length() && isDigit(cameraRBuf[nextIndex])) {
-            nextIndex++;
-          }
-          value_check = cameraRBuf.substring(j1Index + 1, nextIndex).toInt();
-          if (value_check >= 0) surrounding[11] = value_check * 2;
-        }
-        cameraRBuf = "";
-      } else {
-        cameraRBuf += c;
-        if (cameraRBuf.length() > 200) cameraRBuf = "";
+  //rightカメラ
+  if (mySerial1.available() > 0){
+    //radsbrStr = "";
+    cameraRBuf = "";
+    cameraRBuf = mySerial1.readStringUntil('e');
+    int r1Index = cameraRBuf.indexOf('r');
+    int s1Index = cameraRBuf.indexOf('s');
+    int l1Index = cameraRBuf.indexOf('l');
+    int w1Index = cameraRBuf.indexOf('w');
+    //int b1Index = cameraRBuf.indexOf('b');
+    int f1Index = cameraRBuf.indexOf('f');
+    int g1Index = cameraRBuf.indexOf('g');
+    int h1Index = cameraRBuf.indexOf('h');
+    int i1Index = cameraRBuf.indexOf('i');
+    int j1Index = cameraRBuf.indexOf('j');
+    
+    if (r1Index != -1 && s1Index != -1) {
+      radsbr = cameraRBuf.substring(r1Index + 1, s1Index).toInt();
+    }
+    if (s1Index != -1 && l1Index != -1) {
+      rCameraSize = cameraRBuf.substring(s1Index + 1, l1Index).toInt();
+    }
+    if (l1Index != -1 && w1Index != -1) {
+      rdistance = cameraRBuf.substring(l1Index + 1, w1Index).toInt();
+    }
+    if (w1Index != -1 && f1Index != -1) {
+      rWorldSize = cameraRBuf.substring(w1Index + 1, f1Index).toInt();
+    }
+    //if (b1Index != -1 && f1Index != -1) {
+      //rWorldSize = cameraRBuf.substring(b1Index + 1, f1Index).toInt();
+    //}
+    if (f1Index != -1 && g1Index != -1) {
+      value_check = cameraRBuf.substring(f1Index + 1, g1Index).toInt();
+      if(value_check >= 0){
+        surrounding[15] = value_check*2;
+      }
+    }
+    if (g1Index != -1 && h1Index != -1) {
+      value_check = cameraRBuf.substring(g1Index + 1, h1Index).toInt();
+      if(value_check >= 0){
+        surrounding[14] = value_check*2;
+      }
+    }
+    if (h1Index != -1 && i1Index != -1) {
+      value_check = cameraRBuf.substring(h1Index + 1, i1Index).toInt();
+      if(value_check >= 0){
+        surrounding[13] = value_check*2;
+      }
+    }
+    if (i1Index != -1 && j1Index != -1) {
+      value_check = cameraRBuf.substring(i1Index + 1, j1Index).toInt();
+      if(value_check >= 0){
+        surrounding[12] = value_check*2;
+      }
+    }
+    if (j1Index != -1) {
+      int nextIndex = j1Index + 1;
+      while (nextIndex < cameraRBuf.length() && isDigit(cameraRBuf[nextIndex])) {
+        nextIndex++;
+      }
+      value_check = cameraRBuf.substring(j1Index + 1, nextIndex).toInt();
+      if(value_check >= 0){
+        surrounding[11] = value_check*2;
       }
     }
     /*
@@ -240,62 +241,67 @@ int* cameraCheck(){
     }
     */
   }
-  //leftカメラ（非ブロッキング読み出し: 'e' を境界としてフレーム化）
-  {
-    unsigned long lStartMs = millis();
-    while (mySerial2.available() > 0 && (millis() - lStartMs) < 3) {
-      char c = (char)mySerial2.read();
-      if (c == 'e') {
-        int r2Index = cameraLBuf.indexOf('r');
-        int s2Index = cameraLBuf.indexOf('s');
-        int l2Index = cameraLBuf.indexOf('l');
-        int w2Index = cameraLBuf.indexOf('w');
-        int f2Index = cameraLBuf.indexOf('f');
-        int g2Index = cameraLBuf.indexOf('g');
-        int h2Index = cameraLBuf.indexOf('h');
-        int i2Index = cameraLBuf.indexOf('i');
-        int j2Index = cameraLBuf.indexOf('j');
-
-        if (r2Index != -1 && s2Index != -1) {
-          radsbl = cameraLBuf.substring(r2Index + 1, s2Index).toInt();
-        }
-        if (s2Index != -1 && l2Index != -1) {
-          lCameraSize = cameraLBuf.substring(s2Index + 1, l2Index).toInt();
-        }
-        if (l2Index != -1 && w2Index != -1) {
-          ldistance = cameraLBuf.substring(l2Index + 1, w2Index).toInt();
-        }
-        if (w2Index != -1 && f2Index != -1) {
-          lWorldSize = cameraLBuf.substring(w2Index + 1, f2Index).toInt();
-        }
-        if (f2Index != -1 && g2Index != -1) {
-          value_check = cameraLBuf.substring(f2Index + 1, g2Index).toInt();
-          if (value_check >= 0) surrounding[15] = max(surrounding[15], value_check * 2);
-        }
-        if (g2Index != -1 && h2Index != -1) {
-          value_check = cameraLBuf.substring(g2Index + 1, h2Index).toInt();
-          if (value_check >= 0) surrounding[0] = value_check * 2;
-        }
-        if (h2Index != -1 && i2Index != -1) {
-          value_check = cameraLBuf.substring(h2Index + 1, i2Index).toInt();
-          if (value_check >= 0) surrounding[1] = value_check * 2;
-        }
-        if (i2Index != -1 && j2Index != -1) {
-          value_check = cameraLBuf.substring(i2Index + 1, j2Index).toInt();
-          if (value_check >= 0) surrounding[2] = value_check * 2;
-        }
-        if (j2Index != -1) {
-          int next2Index = j2Index + 1;
-          while (next2Index < (int)cameraLBuf.length() && isDigit(cameraLBuf[next2Index])) {
-            next2Index++;
-          }
-          value_check = cameraLBuf.substring(j2Index + 1, next2Index).toInt();
-          if (value_check >= 0) surrounding[0] = value_check * 2;
-        }
-        cameraLBuf = "";
-      } else {
-        cameraLBuf += c;
-        if (cameraLBuf.length() > 200) cameraLBuf = "";
+  //leftカメラ
+  if (mySerial2.available() > 0){
+    cameraLBuf = "";
+    cameraLBuf = mySerial2.readStringUntil('e');
+    int r2Index = cameraLBuf.indexOf('r');
+    int s2Index = cameraLBuf.indexOf('s');
+    int l2Index = cameraLBuf.indexOf('l');
+    int w2Index = cameraLBuf.indexOf('w');
+    //int b2Index = cameraLBuf.indexOf('b');
+    int f2Index = cameraLBuf.indexOf('f');
+    int g2Index = cameraLBuf.indexOf('g');
+    int h2Index = cameraLBuf.indexOf('h');
+    int i2Index = cameraLBuf.indexOf('i');
+    int j2Index = cameraLBuf.indexOf('j');
+    if (r2Index != -1 && s2Index != -1) {
+      radsbl = cameraLBuf.substring(r2Index + 1, s2Index).toInt();
+    }
+    if (s2Index != -1 && l2Index != -1) {
+      lCameraSize = cameraLBuf.substring(s2Index + 1, l2Index).toInt();
+    }
+    if (l2Index != -1 && w2Index != -1) {
+      ldistance = cameraLBuf.substring(l2Index + 1, w2Index).toInt();
+    }
+    if (w2Index != -1 && f2Index != -1) {
+      lWorldSize = cameraLBuf.substring(w2Index + 1, f2Index).toInt();
+    }
+    //if (b2Index != -1 && f2Index != -1) {
+      //lWorldSize = cameraLBuf.substring(b2Index + 1, f2Index).toInt();
+    //}
+    if (f2Index != -1 && g2Index != -1) {
+      value_check = cameraLBuf.substring(f2Index + 1, g2Index).toInt();
+      if(value_check >= 0){
+        surrounding[15] = max(surrounding[15],value_check*2);
+      }
+    }
+    if (g2Index != -1 && h2Index != -1) {
+      value_check = cameraLBuf.substring(g2Index + 1, h2Index).toInt();
+      if(value_check >= 0){
+        surrounding[0] = value_check*2;
+      }
+    }
+    if (h2Index != -1 && i2Index != -1) {
+      value_check = cameraLBuf.substring(h2Index + 1, i2Index).toInt();
+      if(value_check >= 0){
+        surrounding[1] = value_check*2;
+      }
+    }
+    if (i2Index != -1 && j2Index != -1) {
+      value_check = cameraLBuf.substring(i2Index + 1, j2Index).toInt();
+      if(value_check >= 0){
+        surrounding[2] = value_check*2;
+      }
+    }
+    if (j2Index != -1) {
+      int next2Index = j2Index + 1;
+      while (next2Index < cameraLBuf.length() && isDigit(cameraLBuf[next2Index])) {
+        next2Index++;
+      }
+      value_check = cameraLBuf.substring(j2Index + 1, next2Index).toInt();
+      if(value_check >= 0){
+        surrounding[0] = value_check*2;
       }
     }
     /*
@@ -388,10 +394,6 @@ int* cameraCheck(){
   }
   */  
   //return 185;
-
-  //ゴール方向計算
-  goalMarking();
-  
   
   if(fCameraSize <= 1){
     rads = 185;
@@ -443,63 +445,4 @@ int* cameraCheck(){
   returnValue[0] = kaihi_muki_k;
   returnValue[1] = -1;
   return returnValue;
-}
-
-void goalMarking(){
-  float grad;
-  int bGoalRads = 0;//LiDARから取得したゴール方向の総和
-  int bGoalCount = 0;//ゴール方向の入力回数
-  int yGoalRads = 0;//LiDARから取得したゴール方向の総和
-  int yGoalCount = 0;//ゴール方向の入力回数
-  for(int p = 0; p < 16; p++){
-    if(p <= 3 || p >= 11){
-      if(p >= 0 && p < 5){
-        if(p == 0) grad = -22.5;
-        else if(p == 1) grad = -45; 
-        else if(p == 2) grad = -67.5; 
-        else if(p == 3) grad = -90; 
-      } else {
-        if(p == 11) grad = 90;
-        else if(p == 12) grad = 67.5; 
-        else if(p == 13) grad = 45; 
-        else if(p == 14) grad = 22.5; 
-        else if(p == 15) grad = 0;
-      }
-      if(surrounding[p] % 10 == 2){
-        bGoalRads += grad;
-        bGoalCount++;
-      } else if(surrounding[p] % 10 == 4){
-        yGoalRads += grad;
-        yGoalCount++;
-      } else if(surrounding[p] % 10 == 6){
-        bGoalRads += grad;
-        bGoalCount++;
-        yGoalRads += grad;
-        yGoalCount++;
-      }
-    }
-  }
-  if(atack_goal_color == "blue"){
-    if(yGoalCount > 0){
-      gyrads = 180 - (yGoalRads / yGoalCount);
-      if(gyrads < -180){//絶対値が180を超えないように
-        gyrads = 180 - (-180-gyrads);
-      } else if(gyrads > 180){
-        gyrads = -180 + (gyrads-180);
-      }
-    } else {
-      gyrads = 185;
-    }
-  } else if(atack_goal_color == "yellow"){
-    if(bGoalCount > 0){
-      gbrads = 180 - (bGoalRads / bGoalCount);
-      if(gbrads < -180){//絶対値が180を超えないように
-        gbrads = 180 - (-180-gbrads);
-      } else if(gbrads > 180){
-        gbrads = -180 + (gbrads-180);
-      }
-    } else {
-      gbrads = 185;
-    }
-  }
 }

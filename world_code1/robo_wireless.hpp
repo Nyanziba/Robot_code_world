@@ -34,7 +34,6 @@ extern float kaihi_speed_k;
 extern float kaihi_muki_k;
 extern int lineOutVal[4];
 extern int surrounding[16];
-extern int ultrasonicVal[3];
 
 void loodLineSet();
 void lineSet(int i);
@@ -42,6 +41,5 @@ void positionSet();
 
 void commandRead(String comtxt);
 void hexStringToByteArray(const char* hexString, byte* byteArray, int byteArrayLength);
-void commandRead2(String comtxt);
 
 #endif

@@ -132,18 +132,3 @@ void hexStringToByteArray(const char* hexString, byte* byteArray, int byteArrayL
     sscanf(hexString + 2 * i, "%2hhx", &byteArray[i]);
   }
 }
-
-void commandRead2(String comtxt){
-  if(comtxt.substring(0,5) == "TE/US"){
-    int idx1 = comtxt.indexOf(',');
-    int idx2 = comtxt.indexOf(',', idx1 + 1);
-    int idx3 = comtxt.indexOf(',', idx2 + 1);
-    int idx4 = comtxt.indexOf(',', idx3 + 1);
-
-    if (idx1 > 0 && idx2 > idx1 && idx3 > idx2) {
-      ultrasonicVal[0] = comtxt.substring(idx1 + 1, idx2).toInt();//前
-      ultrasonicVal[1] = comtxt.substring(idx2 + 1, idx3).toInt();//右
-      ultrasonicVal[2] = comtxt.substring(idx3 + 1, idx4).toInt();//左
-    }
-  }
-}

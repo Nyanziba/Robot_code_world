@@ -1,8 +1,6 @@
 #include <Arduino.h>
 #include "robo_mode.hpp"
 
-unsigned long last = millis();
-
 int k_backhome(){
   int xposition = kaihi_x_k - goPosition[0];
   int yposition = kaihi_y_k - goPosition[1];
@@ -19,134 +17,70 @@ int k_backhome(){
 }
 
 int k_roboGoRad(int r, int d){
-  unsigned long now = millis();
-  bool lineflag = now-last > 2000;
-
-  bool Online26 = lineVal[0] > lineOutVal[0];
-  bool Online27 = lineVal[1] > lineOutVal[1];
-  bool Online28 = lineVal[2] > lineOutVal[2];
-  bool Online29 = lineVal[3] > lineOutVal[3];
-  if(Online26 || Online27 || Online28 || Online29) last = millis();
-
   if(abs(r) > 181){
       return 185;
   }
-  int reRad = 185;
 
-  int *goal;
-  if(atack_goal_color == "blue") goal = &gyrads;
-  else if(atack_goal_color == "yellow") goal = &gbrads;
-
-  if(abs(*goal) > 181){
-    return kaihi_muki_k;
-  }
-
-  //2秒間ラインセンサが反応しなかったらゴール方向へ
-  if(lineflag) return *goal;
-
-  //ゴール方向とボールの間で止まる
-  if(abs(*goal) < 181 && d != -1 && abs(r) < 181){
-    if(*goal > -130 && *goal < 0){
-      if(r > 80 ) return 185;
-    } else if(*goal > -140 && *goal <= -130 ){
-      if(r > 20 && r < 80) return 185;
-    } else if(abs(*goal) > 140 && abs(*goal) < 181){
-      if(abs(r) < 20) return 185;
-    } else if(*goal >= 130 && *goal < 140){
-      if(r < -20 && r > -80) return 185;
-    } else if(*goal >= 0 && *goal < 130){
-      if(r < -80 ) return 185;
+  int reRad = 0; // 修正後の角度を初期化
+  if(d < 0){
+    return 185;
+  } else {
+    // 各センサーグループの白線検出状態を判定
+    bool sensor27 = (lineVal[0] > lineOutVal[0]);     // 赤色 (前方)
+    bool sensor26 = (lineVal[1] > lineOutVal[1]);    // 青色 (左側面)
+    bool sensor28 = (lineVal[2] > lineOutVal[2]);  // 黄色 (右側面)
+    bool sensor29 = (lineVal[3] > lineOutVal[3]);   // 緑色 (後方)
+    
+    // ボールの角度 r に基づいて進む方向を決定
+    if (r >= -180 && r < -15) { // ボールが左側にある場合（左へ進む）
+        if (sensor26 && sensor27 && !sensor28) {
+            // 左側と前方に白線がある（理想的な左カーブトレース）
+            reRad = -90.0; // 左側面をキープするように進む
+        } else if (sensor26 && sensor27 && sensor28) {
+            // 前方と左右に白線がある（直進に近いが左に寄りたい）
+            reRad = -45.0; // やや左へ修正
+        } else if (sensor26 && !sensor27) {
+            // 左側面には白線があるが、前方に見えない（カーブが急すぎるか、見失いそう）
+            reRad = -135.0; // より強く左旋回
+        } else if (!sensor26 && sensor27) {
+            // 前方には白線があるが、左側面に見えない（右に逸脱気味）
+            reRad = -45.0; // 左へ戻る
+        } else if (sensor28) {
+            // 右側に白線が検出された（大きく左に逸脱、または白線をまたぎそう）
+            reRad = -180.0; // 最大の左旋回で白線を探す
+        } else if (sensor29) {
+            // 後方に白線が検出された（完全に白線をまたいだ、緊急事態）
+            reRad = -180.0; // 急な左旋回で白線に戻る
+        } else {
+            // 全てのセンサーが白線を検出しない（左への移動中）
+            reRad = -90.0; // 左方向へ進みながら白線を探す
+        }
+    } else if (r > 15 && r <= 180) { // ボールが右側にある場合（右へ進む）
+        if (sensor28 && sensor27 && !sensor26) {
+            // 右側と前方に白線がある（理想的な右カーブトレース）
+            reRad = 90.0; // 右側面をキープするように進む
+        } else if (sensor28 && sensor27 && sensor26) {
+            // 前方と左右に白線がある（直進に近いが右に寄りたい）
+            reRad = 45.0; // やや右へ修正
+        } else if (sensor28 && !sensor27) {
+            // 右側面には白線があるが、前方に見えない（カーブが急すぎるか、見失いそう）
+            reRad = 135.0; // より強く右旋回
+        } else if (!sensor28 && sensor27) {
+            // 前方には白線があるが、右側面に見えない（左に逸脱気味）
+            reRad = 45.0; // 右へ戻る
+        } else if (sensor26) {
+            // 左側に白線が検出された（大きく右に逸脱、または白線をまたぎそう）
+            reRad = 180.0; // 最大の右旋回で白線を探す
+        } else if (sensor29) {
+            // 後方に白線が検出された（完全に白線をまたいだ、緊急事態）
+            reRad = 180.0; // 急な右旋回で白線に戻る
+        } else {
+            // 全てのセンサーが白線を検出しない（右への移動中）
+            reRad = 90.0; // 右方向へ進みながら白線を探す
+        }
+    } else { // ボールの角度が0度付近、または想定外の値（中央付近でのライン維持）
+        reRad = 185;
     }
-  }
-
-  //ゴールは認識してるがボールが見当たらない➔ゴール中心へ
-  if(d == -1){
-    if(!(abs(*goal) > 160 && abs(*goal) < 181)){
-      if(*goal > 0){
-        r = 90;
-      } else {
-        r = -90;
-      }
-    } else {
-      last = millis();
-      return 185;
-    }
-  }
-
-  //ゴール前ライントレース
-  if( r > 0){
-    if(*goal > -120 && *goal < 0){
-      return 0;
-    } else if(*goal > -130 && *goal <= -120 ){
-      if(Online26 || Online27) reRad = -90;
-      else if(Online28 || Online29) reRad = 90;
-      else return 185;
-    } else if(*goal > -140 && *goal <= -130 ){
-      if(Online26) reRad = -135;
-      else if(Online28) reRad = 45;
-      else reRad = 135;
-    } else if(abs(*goal) > 140 && abs(*goal) < 181){
-      if(Online26 || Online29) reRad = 135;
-      else if(Online27 || Online28) reRad = 45;
-      else reRad = 90;
-    } else if(*goal >= 130 && *goal < 140){
-      if(Online27) reRad = -45;
-      else if(Online29) reRad = 135;
-      else reRad = 45;
-    } else if(*goal >= 0 && *goal < 130){
-      if(Online26 || Online27) reRad = -90;
-      else if(Online28 || Online29) reRad = 90;
-      else reRad = 0;
-    } 
-  } else if(r < 0){
-    if(*goal > -130 && *goal < 0){
-      if(Online26 || Online27) reRad = -90;
-      else if(Online28 || Online29) reRad = 90;
-      else reRad = 0;
-    } else if(*goal > -140 && *goal <= -130 ){
-      if(Online26) reRad = -135;
-      else if(Online28) reRad = 45;
-      else reRad = -45;
-    } else if(abs(*goal) > 140 && abs(*goal) < 181){
-      if(Online26 || Online29) reRad = -135;
-      else if(Online27 || Online28) reRad = -45;
-      else reRad = -90;
-    } else if(*goal >= 130 && *goal < 140){
-      if(Online27) reRad = -45;
-      else if(Online29) reRad = 135;
-      else reRad = -135;
-    } else if(*goal >= 120 && *goal < 130){
-      if(Online26 || Online27) reRad = -90;
-      else if(Online28 || Online29) reRad = 90;
-      else return 185;
-    } else if(*goal >= 0 && *goal < 120){
-      return 0;
-    }
-  }
-  
-  if(reRad < -180){//絶対値が180を超えないように
-    reRad = 180 - (-180-reRad);
-  } else if(reRad > 180){
-    reRad = -180 + (reRad-180);
   }
   return reRad;
 }
-/*
-bool k_line(){
-    int *goal;
-    if(atack_goal_color == "blue") goal = &gbrads;
-    else if(atack_goal_color == "yellow") goal = &gyrads;
-    if( r > 0){
-        if(*goal > -120 && *goal < 0) {
-            MoterSerialPR(powermx,30); return true;
-        }else if(*goal > -130 && *goal <= -120 ) {
-            MoterSerialPR(powermx,90); return true;
-        }else if(*goal > -140 && *goal <= -130 ) {
-            MoterSerialPR(powermx,90); return true;
-        }else if(abs(*goal) > 90 && abs(*goal) < 181) {
-            MoterSerialPR(powermx,60); return true;
-        }
-    }
-    return false;
-}
-    */

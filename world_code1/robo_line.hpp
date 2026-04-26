@@ -24,13 +24,11 @@ extern float kaihi_y_k;
 extern float kaihi_speed_k;
 extern float kaihi_muki_k;
 extern int surrounding[16];
-extern String posi;
 
 void loodLineSet();
 void lineSet(int i);
 bool lineCheck(int *sensorVal);
 void kaihi_check();
 void MoterSerialPR(int p,int r);
-//bool k_line();
 
 #endif

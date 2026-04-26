@@ -22,12 +22,9 @@ extern int gyrads;
 extern bool kickMode;
 extern SoftwareSerial mySerial1; // RX, TX
 extern SoftwareSerial mySerial2; // RX, TX
-extern int bGoalRads;//LiDARから取得したゴール方向の総和
-extern int bGoalCount;//ゴール方向の入力回数
 
 
 // 関数プロトタイプ
 int* cameraCheck();
-void goalMarking();
 
 #endif

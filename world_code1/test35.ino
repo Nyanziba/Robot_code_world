@@ -24,10 +24,6 @@ int lineOutVal[4] = {64, 90, 67, 71};
 #include "robo_line.hpp"
 //=============================================================================
 
-//==========ULTRASONIC=========================================================
-int ultrasonicVal[3] = {0, 0, 0};//前,右,左
-//=============================================================================
-
 //==========WIRELESS_DEFINE====================================================
 //無線
 #include "robo_wireless.hpp"
@@ -47,8 +43,6 @@ bool shootSubSend = false;
 bool shootSend = false;
 unsigned long sendTime = 0;
 const unsigned long timeout = 500;
-
-int counter_of_core_alive = 0;
 //=============================================================================
 
 //==========CAMERA_DEFINE======================================================
@@ -70,12 +64,12 @@ int positionRange = 10;
 bool kickMode = false;
 //=============================================================================
 
-#include "robo_serial.hpp"
 
 SoftwareSerial mySerial1(11, 12); // RX, TX
 SoftwareSerial mySerial2(17, 16); // RX, TX
 #include <Arduino.h>
 #include <math.h>
+void pinkColorWaveStep();
 //==========MAIN===============================================================
 void setup() {
   pinMode(6, OUTPUT);
@@ -109,11 +103,6 @@ void setup() {
     pixels.setPixelColor(6, pixels.Color(2,2,0));
     pixels.show();
   }
-  if (digitalRead(24) == HIGH){
-    posi = "keeper";
-  } else {
-    posi = "attacker";
-  }
   
   mySerial.println("Se/PChange");
   tone(PINNO,370,BEAT) ; // ファ#
@@ -146,11 +135,42 @@ void loop() {
   if (mySerial.available() > 0){
     commandRead(mySerial.readString());
   }
-  if(Serial2.available() > 0){
-    commandRead2(Serial2.readStringUntil('\n'));
-  }
+  // put your main code here, to run repeatedly:
   jairo = getJairo();
   float pitch = jairo;
+  //Serial.println(abs(int(ypr[0] * 180/M_PI)));
+  //int hyouzi[]={0,0,0,0,0,0,0,0,0,0,0,0,0};
+  //LED = round(int(ypr[0] * 180/M_PI)/6);
+  /*
+  LED = round(int(rads));
+  if(LED < 0){
+    LED = 6 + abs(LED);
+  } else {
+    LED = 6 - LED;
+  }
+  if((0 <= LED )&&(LED <= 12)){
+    hyouzi[LED] = 50;
+  }
+  if((0 <= LED )&&(LED <= 12)){
+    hyouzi[LED-1] = 20;
+  }
+  if((0 <= LED )&&(LED <= 12)){
+    hyouzi[LED+1] = 20;
+  }
+  pixels.setPixelColor(0, pixels.Color(0,0,hyouzi[0]));
+  pixels.setPixelColor(1, pixels.Color(0,0,hyouzi[1]));
+  pixels.setPixelColor(2, pixels.Color(0,0,hyouzi[2]));
+  pixels.setPixelColor(3, pixels.Color(0,0,hyouzi[3]));
+  pixels.setPixelColor(4, pixels.Color(0,0,hyouzi[4]));
+  pixels.setPixelColor(5, pixels.Color(0,0,hyouzi[5]));
+  pixels.setPixelColor(6, pixels.Color(0,0,hyouzi[7]));
+  pixels.setPixelColor(7, pixels.Color(0,0,hyouzi[8]));
+  pixels.setPixelColor(8, pixels.Color(0,0,hyouzi[9]));
+  pixels.setPixelColor(9, pixels.Color(0,0,hyouzi[10]));
+  pixels.setPixelColor(10, pixels.Color(0,0,hyouzi[11]));
+  pixels.setPixelColor(11, pixels.Color(0,0,hyouzi[12]));
+  pixels.show();
+  */
   
   if (abs(pitch) > 130){
     strongTurn = true;
@@ -189,6 +209,7 @@ void loop() {
     MoterSerial(170, 170, -170, -170);
   }
   //Serial.println(String(pitch) + " " + String(gbrads) + " " + String(jairo));
+  //pinkColorWaveStep();
   //Serial.println(String(intoutput));
   /*
   MoterSerial(intoutput, intoutput, -intoutput, -intoutput);
@@ -228,27 +249,72 @@ void setup1(){
 }
 
 void loop1() {
-  counter_of_core_alive++;
-  if(counter_of_core_alive > 1000000){
-    Serial.println("core alive");
-    counter_of_core_alive = 0;
-  }
   putPower = powermx;
-  
   ballRD = cameraCheck();
-  /*
   kaihi_check();
-
-  lineVal[0] = analogRead(26);
-  lineVal[1] = analogRead(27);
-  lineVal[2] = analogRead(28);
-  lineVal[3] = analogRead(29);
-
+  //生存確認
+  /*
+  Serial.print(surrounding[0]);
+  Serial.print(',');
+  Serial.print(surrounding[1]);
+  Serial.print(',');
+  Serial.print(surrounding[2]);
+  Serial.print(',');
+  Serial.print(surrounding[3]);
+  Serial.print(',');
+  Serial.print(surrounding[4]);
+  Serial.print(',');
+  Serial.print(surrounding[5]);
+  Serial.print(',');
+  Serial.print(surrounding[6]);
+  Serial.print(',');
+  Serial.print(surrounding[7]);
+  Serial.print(',');
+  Serial.print(surrounding[8]);
+  Serial.print(',');
+  Serial.print(surrounding[9]);
+  Serial.print(',');
+  Serial.print(surrounding[10]);
+  Serial.print(',');
+  Serial.print(surrounding[11]);
+  Serial.print(',');
+  Serial.print(surrounding[12]);
+  Serial.print(',');
+  Serial.print(surrounding[13]);
+  Serial.print(',');
+  Serial.print(surrounding[14]);
+  Serial.print(',');
+  Serial.println(surrounding[15]);
+  Serial.print(kaihi_x_k);
+  Serial.print(',');
+  Serial.print(kaihi_y_k);
+  Serial.print(',');
+  */
+  //Serial.print(kaihi_muki_k);
+  //Serial.print(',');
+  /*
+  Serial.println(kaihi_speed_k);
+  */
+  /*
+  Serial.print(" r:");
+  Serial.print(String(ballRD[0]));
+  Serial.print(" d:");
+  Serial.print(String(ballRD[1]));
+  */
   if(posi == "attacker"){
     goRad = a_roboGoRad(ballRD[0], ballRD[1]);
   } else {
     goRad = k_roboGoRad(ballRD[0], ballRD[1]);
   }
+  /*
+  Serial.print(" go:");
+  Serial.print(String(goRad));
+  Serial.print(" goal:");
+  Serial.print(String(gbrads));
+  Serial.print(" gColor:");
+  Serial.println(atack_goal_color);
+  */
+  
 
   if (drMode){
     if (drCatchMode || shootSend){
@@ -257,20 +323,49 @@ void loop1() {
       putPower = drBack;
     }
   }
-    */
+  //mySerial.print(rads);
+  //mySerial.print(",");
+  //mySerial.print(radsbrStr);
+  //mySerial.print(",");
+  //mySerial.println(radsblStr);
+  lineVal[0] = analogRead(26);
+  lineVal[1] = analogRead(27);
+  lineVal[2] = analogRead(28);
+  lineVal[3] = analogRead(29);
+  Serial.print(lineVal[0]);
+  Serial.print(",");
+  Serial.print(lineVal[1]);
+  Serial.print(",");
+  Serial.print(lineVal[2]);
+  Serial.print(",");
+  Serial.println(lineVal[3]);
+
   if (!strongTurn){
     if (true){
     
     //if (lineCheck(lineVal)){
+      pixels.setPixelColor(3, pixels.Color(0,0,0));
+      pixels.setPixelColor(4, pixels.Color(0,0,0));
+      pixels.setPixelColor(5, pixels.Color(0,0,0));
+      pixels.setPixelColor(6, pixels.Color(0,0,0));
+      pixels.setPixelColor(7, pixels.Color(0,0,0));
+      pixels.setPixelColor(8, pixels.Color(0,0,0));
+      pixels.setPixelColor(9, pixels.Color(0,0,0));
+      pixels.show();
       //delay(3000);
       //MoterSerialPR(0,0);
       //MoterSerialPR(200,0);
       
-      //if (abs(goRad) < 181){
-        //MoterSerialPR(putPower,goRad);
-      //} else {
-        //MoterSerialPR(0,0);
-      //}
+      if (abs(goRad) < 181){
+        MoterSerialPR(putPower,goRad);
+      } else {
+        MoterSerialPR(0,0);
+      }
+      
+      
+      
+      
+      
       //delay(3000);
       /*
       if (abs(rads) < 181){
@@ -283,17 +378,45 @@ void loop1() {
       //blshoot(0);
       //delay(5000);
     //}
+    } else {
+      pixels.setPixelColor(3, pixels.Color(5,0,0));
+      pixels.setPixelColor(4, pixels.Color(5,0,0));
+      pixels.setPixelColor(5, pixels.Color(5,0,0));
+      pixels.setPixelColor(6, pixels.Color(5,0,0));
+      pixels.setPixelColor(7, pixels.Color(5,0,0));
+      pixels.setPixelColor(8, pixels.Color(5,0,0));
+      pixels.setPixelColor(9, pixels.Color(5,0,0));
+      pixels.show();
     }
   }
-  
-  //serial表示------------------------------------------------------
-  //serial_surrounding();//カメラLiDAR
-  //serial_goal();//ゴール方向確認
-  //serial_ultrasonic();//超音波センサ
-  //serial_kaihi();//カメラLiDARから導き出される位置
-  //serial_RDGO();//現在のボール情報(r,d)を表示
-  //serial_line();//ラインセンサ
-  //----------------------------------------------------------------
+  /*
+  if (senValMode) {
+    mySerial.print("Sy/SVMo/");
+    mySerial.print("L");
+    mySerial.print("/");
+    mySerial.print(String(analogRead(26)));
+    mySerial.print(",");
+    mySerial.print(String(analogRead(27)));
+    mySerial.print(",");
+    mySerial.print(String(analogRead(28)));
+    mySerial.print(",");
+    mySerial.print(String(analogRead(29)));
+    //mySerial.print("/");
+    //mySerial.print(M1+","+M2+","+M3+","+M4);
+    //mySerial.print("/");
+    //mySerial.print(String(abs(int(ypr[0] * 180/M_PI))));
+    mySerial.println("/");
+  }
+  */
+  /*
+  Serial.print(lineVal[0]);
+  Serial.print(", ");
+  Serial.print(lineVal[1]);
+  Serial.print(", ");
+  Serial.print(lineVal[2]);
+  Serial.print(", ");
+  Serial.println(lineVal[3]);
+  */
 }
 //=============================================================================
 
@@ -308,6 +431,24 @@ void setColor(int *ledArray, int *color) {
     }
   }
 }
+/*
+void pinkColorWaveStep() {
+    static int t = 0;
+    for (int i = 0; i < LED_COUNT; i++) {
+        // ピンクの色味を波状に変化させる
+        float wave = sin(2 * PI * (i + t * 0.2) / LED_COUNT);
+        int r = 110 + 15 * wave; // 220〜250
+        int g = 10  + 5 * wave; // 30〜40
+        int b = 50 + 20 * wave; // 120〜160
+        r = constrain(r, 0, 100);
+        g = constrain(g, 0, 100);
+        b = constrain(b, 0, 100);
+        pixels.setPixelColor(i, pixels.Color(r, g, b));
+    }
+    pixels.show();
+    t++;
+}
+    */
 //=============================================================================
 
 //==========MONITOR============================================================
