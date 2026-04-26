@@ -47,8 +47,6 @@ bool shootSubSend = false;
 bool shootSend = false;
 unsigned long sendTime = 0;
 const unsigned long timeout = 500;
-
-int counter_of_core_alive = 0;
 //=============================================================================
 
 //==========CAMERA_DEFINE======================================================
@@ -95,8 +93,8 @@ void setup() {
   pid.SetOutputLimits(-moutmax, moutmax); // モーターのPWM制御範囲に合わせて設定
   pid.SetSampleTime(10); // PID制御の更新周期（ミリ秒）
   LittleFS.begin();
-  posi = "attacker";
-  //posi = "keeper";
+  //posi = "attacker";
+  posi = "keeper";
   
   if(digitalRead(23) == HIGH){
     atack_goal_color = "blue";
@@ -228,15 +226,8 @@ void setup1(){
 }
 
 void loop1() {
-  counter_of_core_alive++;
-  if(counter_of_core_alive > 1000000){
-    Serial.println("core alive");
-    counter_of_core_alive = 0;
-  }
   putPower = powermx;
-  
   ballRD = cameraCheck();
-  /*
   kaihi_check();
 
   lineVal[0] = analogRead(26);
@@ -257,7 +248,7 @@ void loop1() {
       putPower = drBack;
     }
   }
-    */
+
   if (!strongTurn){
     if (true){
     
@@ -266,11 +257,11 @@ void loop1() {
       //MoterSerialPR(0,0);
       //MoterSerialPR(200,0);
       
-      //if (abs(goRad) < 181){
-        //MoterSerialPR(putPower,goRad);
-      //} else {
-        //MoterSerialPR(0,0);
-      //}
+      if (abs(goRad) < 181){
+        MoterSerialPR(putPower,goRad);
+      } else {
+        MoterSerialPR(0,0);
+      }
       //delay(3000);
       /*
       if (abs(rads) < 181){
@@ -285,7 +276,6 @@ void loop1() {
     //}
     }
   }
-  
   //serial表示------------------------------------------------------
   //serial_surrounding();//カメラLiDAR
   //serial_goal();//ゴール方向確認
