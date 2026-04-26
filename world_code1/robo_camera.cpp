@@ -145,6 +145,7 @@ int* cameraCheck(){
     //Serial.println(rads);
   }
   //rightカメラ（非ブロッキング読み出し: 'e' を境界としてフレーム化）
+  //追加してみた
   {
     unsigned long rStartMs = millis();
     while (mySerial1.available() > 0 && (millis() - rStartMs) < 3) {
