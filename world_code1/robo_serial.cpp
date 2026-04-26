@@ -92,21 +92,3 @@ void serial_line(){//ラインセンサ
     Serial.print("/");
     Serial.println(lineOutVal[3]);
 }
-
-void serial_camera_ball(){
-    Serial.print("[front]");
-    Serial.print(" r:");
-    Serial.print(rads);
-    Serial.print(" d:");
-    Serial.print(fdistance);
-    Serial.print("  [rigth]");
-    Serial.print(" r:");
-    Serial.print(radsbr);
-    Serial.print(" d:");
-    Serial.print(rdistance);
-    Serial.print("  [left]");
-    Serial.print(" r:");
-    Serial.print(radsbl);
-    Serial.print(" d:");
-    Serial.println(ldistance);
-}

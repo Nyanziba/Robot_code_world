@@ -19,7 +19,6 @@ extern byte cleartext[64];
 extern char textRead;
 extern String wirelessText;
 extern bool senValMode;
-extern int commuMode[2];
 
 extern String posi;
 extern unsigned long last_sended_time;
@@ -44,6 +43,5 @@ void positionSet();
 void commandRead(String comtxt);
 void hexStringToByteArray(const char* hexString, byte* byteArray, int byteArrayLength);
 void commandRead2(String comtxt);
-bool checkComm();
 
 #endif

@@ -1,8 +1,6 @@
 #ifndef ROBO_MODE_H
 #define ROBO_MODE_H
 
-#include <Arduino.h>
-
 extern float kaihi_x_k;
 extern float kaihi_y_k;
 extern float kaihi_speed_k;
@@ -15,20 +13,11 @@ extern int powermx;
 extern String atack_goal_color;
 extern int gbrads;
 extern int gyrads; 
-extern int putPower;
-extern bool drCatch;
-
-extern bool drMode;
-
-extern bool searchflag;
-extern int ultrasonicVal[3];
-extern bool backgoalfrontflag;
 
 int backhome();
 int k_backhome();
 int a_roboGoRad(int r, int d);
 int k_roboGoRad(int r, int d);
-int d_roboGoRad(int r, int d);
 //bool k_line();
 void MoterSerialPR(int p,int r);
 

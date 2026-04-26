@@ -14,12 +14,6 @@ extern int *ballRD;
 extern int goRad;
 extern int lineVal[4];
 extern int lineOutVal[4];
-extern int rads;
-extern int radsbr;
-extern int radsbl;
-extern int fdistance;
-extern int rdistance;
-extern int ldistance;
 
 void serial_surrounding();
 void serial_goal();
@@ -27,6 +21,5 @@ void serial_ultrasonic();
 void serial_kaihi();
 void serial_RDGO();
 void serial_line();
-void serial_camera_ball();
 
 #endif

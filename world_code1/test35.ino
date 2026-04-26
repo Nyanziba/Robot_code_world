@@ -1,10 +1,7 @@
 //test21:新しい動作システムのテスト（面積が最大のカメラを選択）+ボールなかったら中心へ+RP2040で進行方向計算
-#include <Arduino.h>
 #include "I2Cdev.h"
 #include "robo_gyro.hpp"
 float jairo = 0;
-bool searchflag = false;
-bool backgoalfrontflag = false;
 
 #include "robo_moter.hpp"
 
@@ -23,8 +20,7 @@ int LED=0; //角度をLED位置に変換後の値
 
 //==========LINE_DEFINE========================================================
 int lineVal[4] = {0, 0, 0, 0};
-int lineOutVal[4] = {84, 54, 61, 40};//black
-//int lineOutVal[4] = {47, 60, 34, 48};//white
+int lineOutVal[4] = {64, 90, 67, 71};
 #include "robo_line.hpp"
 //=============================================================================
 
@@ -34,7 +30,6 @@ int ultrasonicVal[3] = {0, 0, 0};//前,右,左
 
 //==========WIRELESS_DEFINE====================================================
 //無線
-int commuMode[2] = {0,0};
 #include "robo_wireless.hpp"
 #include <LittleFS.h>
 #include <SoftwareSerial.h>
@@ -42,10 +37,18 @@ int commuMode[2] = {0,0};
 
 //==========DRIBBLER_DEFINE====================================================
 int radPower = 200; //ショットの時の回転速度
-int shootTime = 190;//ショットの時の回転時間
-int shootCool = 500;//ショットの後止まってる時間
+int shootTime = 190;
+int shootCool = 500;
+int drBack = 100;
+int drCatch = 50;
+bool drMode = false;
+bool drCatchMode = false;
+bool shootSubSend = false;
+bool shootSend = false;
 unsigned long sendTime = 0;
 const unsigned long timeout = 500;
+
+int counter_of_core_alive = 0;
 //=============================================================================
 
 //==========CAMERA_DEFINE======================================================
@@ -67,15 +70,11 @@ int positionRange = 10;
 bool kickMode = false;
 //=============================================================================
 
-//==========DRIBLE_DEFINE======================================================
-bool drMode = false;
-bool drCatch = false;
-//=============================================================================
-
 #include "robo_serial.hpp"
 
 SoftwareSerial mySerial1(11, 12); // RX, TX
 SoftwareSerial mySerial2(17, 16); // RX, TX
+#include <Arduino.h>
 #include <math.h>
 //==========MAIN===============================================================
 void setup() {
@@ -133,7 +132,6 @@ void setup() {
   pixels.setPixelColor(5, pixels.Color(0,0,0));
   pixels.setPixelColor(6, pixels.Color(0,0,0));
   pixels.show();
-  delay(5000);
 }
 
 void loop() {
@@ -148,11 +146,9 @@ void loop() {
   if (mySerial.available() > 0){
     commandRead(mySerial.readString());
   }
-  
   if(Serial2.available() > 0){
     commandRead2(Serial2.readStringUntil('\n'));
   }
-  
   jairo = getJairo();
   float pitch = jairo;
   
@@ -161,30 +157,13 @@ void loop() {
   } else if (abs(pitch) < 10 && strongTurn == true){
     strongTurn = false;
   }
-  if(searchflag){
-    if(abs(gbrads) < 130 && atack_goal_color == "blue"){
-      if(abs(pitch) < 70){
-        pitch = gbrads*(-1);
-      } else if((pitch >= 0 && gbrads >= 0) || (pitch < 0 && gbrads < 0)){
-        if(pitch >= 0){
-          pitch = pitch-70;
-        } else {
-          pitch = pitch+70;
-        }
-      }
-    } else if(abs(gyrads) < 130 && atack_goal_color == "yellow"){
-      if(abs(pitch) < 70){
-        pitch = gyrads*(-1);
-      } else if((pitch >= 0 && gyrads >= 0) || (pitch < 0 && gyrads < 0)){
-        if(pitch >= 0){
-          pitch = pitch-70;
-        } else {
-          pitch = pitch+70;
-        }
-      }
-    }
-  }
   
+  
+  if(abs(gbrads) < 130 && atack_goal_color == "blue"){
+    pitch = gbrads*(-1);
+  } else if(abs(gyrads) < 130 && atack_goal_color == "yellow"){
+    pitch = gyrads*(-1);
+  }
   
   
 
@@ -207,11 +186,7 @@ void loop() {
   //}
   intoutput = pidCalculate(pitch);
   if (strongTurn){
-    if(pitch < 0){
-      MoterSerial(170, 170, -170, -170);
-    } else if(pitch < 0){
-      MoterSerial(-170, -170, 170, 170);
-    }
+    MoterSerial(170, 170, -170, -170);
   }
   //Serial.println(String(pitch) + " " + String(gbrads) + " " + String(jairo));
   //Serial.println(String(intoutput));
@@ -228,14 +203,13 @@ void loop() {
     pixels.setPixelColor(6, pixels.Color(0,2,0));
     pixels.show();
   }
-  if(kickMode && !checkComm()){
+  if(kickMode){
     digitalWrite(6, HIGH);
     delay(200);
     digitalWrite(6, LOW);
     delay(100);
     kickMode = false;
   }
-  
 }
 
 void setup1(){
@@ -254,10 +228,16 @@ void setup1(){
 }
 
 void loop1() {
-  Serial.println("loop1");
-  putPower = 200;
+  counter_of_core_alive++;
+  if(counter_of_core_alive > 1000000){
+    Serial.println("core alive");
+    counter_of_core_alive = 0;
+  }
+  putPower = powermx;
+  
   ballRD = cameraCheck();
-  //kaihi_check();
+  /*
+  kaihi_check();
 
   lineVal[0] = analogRead(26);
   lineVal[1] = analogRead(27);
@@ -270,20 +250,27 @@ void loop1() {
     goRad = k_roboGoRad(ballRD[0], ballRD[1]);
   }
 
+  if (drMode){
+    if (drCatchMode || shootSend){
+      putPower = drCatch;
+    } else {
+      putPower = drBack;
+    }
+  }
+    */
   if (!strongTurn){
     if (true){
+    
     //if (lineCheck(lineVal)){
       //delay(3000);
       //MoterSerialPR(0,0);
-      MoterSerialPR(255,0);
-      /* 
-      if (abs(goRad) < 181){
-        MoterSerialPR(putPower,goRad);
-      } else {
-        MoterSerialPR(0,0);
-      }
-        */
+      //MoterSerialPR(200,0);
       
+      //if (abs(goRad) < 181){
+        //MoterSerialPR(putPower,goRad);
+      //} else {
+        //MoterSerialPR(0,0);
+      //}
       //delay(3000);
       /*
       if (abs(rads) < 181){
@@ -298,6 +285,7 @@ void loop1() {
     //}
     }
   }
+  
   //serial表示------------------------------------------------------
   //serial_surrounding();//カメラLiDAR
   //serial_goal();//ゴール方向確認
@@ -305,7 +293,6 @@ void loop1() {
   //serial_kaihi();//カメラLiDARから導き出される位置
   //serial_RDGO();//現在のボール情報(r,d)を表示
   //serial_line();//ラインセンサ
-  //serial_camera_ball();
   //----------------------------------------------------------------
 }
 //=============================================================================
